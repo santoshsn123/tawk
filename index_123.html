@@ -1,0 +1,317 @@
+<html>
+<title >This is simple chat App</title>
+<link href="favicon.jpg" rel="shortcut icon" type="images/vnd.microsoft.icon">
+<style type="text/css" >
+#chat {
+	height: 500px;
+}
+</style>
+<script>
+function simple_function()
+{
+	var res_1 = new Array();
+res_1[0]='Hello There';
+res_1[1]='Hello There1';
+res_1[2]='Hello There2';
+res_1[3]='Hello There3';
+res_1[4]='Hello There4';
+//alert(res_1[0]);
+alert(res_1);
+console.log(res_1);
+}
+</script>
+<!--http://99.111.104.82/api/photo-->
+<body>
+<a href="javascript:void(0);" onclick="simple_function();" > simple function</a>
+<div id="showhide">
+<div id="chat" style="width:500px; height:500px; overflow: auto;"></div>
+<form id="uploadForm"
+          enctype="multipart/form-data"
+          action="http://dvlp-beta.tawkeaze.com:8080/api/photo"
+          method="post">
+      <input type="file" name="userPhoto" />
+      <input type="submit" value="Send Image" name="submit">
+      <span id = "status"></span>
+    </form>
+    
+<form  id="send-message">
+<div id="status_here">Status</div>
+  <input id="message" />
+  <input type="submit"  id="submit" value="Submit" />
+  <input type="text" name="file_name" id="file_name"  value="" >
+  <input type="text" name="data_type"   id="data_type"  value="" ><br>
+My Id : <input type="text" name="my_id" id="my_id" value="19" >
+</form>
+
+
+<a href="javascript:void(0);" onClick="function_new();" >Click Here</a>
+<br>
+<a href="javascript:void(0);" onClick="logout();" >Logout</a><br>
+
+
+<a href="javascript:void(0);" id="buttonId" onClick="callserver();" >button</a>
+Room Id : <input type="text" id="call_room" value="" > &nbsp;&nbsp;&nbsp;&nbsp; 
+<select name="call_type" id="call_type" >
+<option>video</option>
+<option>audio</option>
+</select> 
+<button  id="call_Id"  > Call From Here</button>
+
+<button id="reject_call_Id"  > Reject Call </button>
+<br>
+<button id="add_contacts"  > Add All Contacts </button>
+<button id="get_group_data_btn"  >Group Data</button>
+
+</div>
+
+<div id="show_hide1">
+<table>
+	<tr>
+    	<td>Your Phone No</td>
+        <td><input type="text" name="uphone" id="uphone"  value="" > </td>
+    </tr>
+    <tr>
+    	<td></td>
+        <td><input type="submit" name="submit" id="submit" onClick="call_function();"  value="Submit" > </td>
+    </tr>
+</table> 
+</div>
+</body>
+</html>
+<a href="group/" >Chat in Group</a>
+<a href="group_values/" > Change Group Values </a>
+ <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<!-- <script src="http://192.168.1.13/gamestation/js/jquery.min.js"></script> -->
+  <script src="http://cdnjs.cloudflare.com/ajax/libs/jquery.form/3.51/jquery.form.min.js"></script>
+  <script>
+  $(document).ready(function() {
+
+     $('#uploadForm').submit(function() {
+		 $("#status").empty().text("File is uploading...");
+
+        $(this).ajaxSubmit({
+
+            error: function(xhr) {
+				//alert("error : "+xhr.status);
+		           // status('Error: ' + xhr.status);
+            },
+
+            success: function(response) {
+				alert("Here is  responce : - "+response);
+					console.log(response);
+					$("#status").empty().text(response);
+					document.getElementById('message').value = 'No Message';
+					document.getElementById('file_name').value = response;
+					document.getElementById('data_type').value = 'image';
+					document.getElementById('send-message').submit();
+            }
+	});
+
+	return false;
+    });    
+});
+  </script>
+  
+<!--<script type="text/javascript" src="http://code.jquery.com/jquery-latest.min.js">
+</script>-->
+<script type="text/javascript" src="/socket.io/socket.io.js">
+</script>
+<script type="application/javascript" >
+jQuery(function($){
+$(message).keypress(function(){
+//alert('hyello');
+	var input = {typing_from:sessionStorage.getItem("username"), typing_to:"7385697913", typ_stat:"yes"};
+			console.log(input);
+			socket.emit('typing_status',input);
+});
+
+$(message).blur(function() {
+	var input = {typing_from:sessionStorage.getItem("username"), typing_to:"7385697913", typ_stat:"no"};
+			console.log(input);
+			socket.emit('typing_status',input);
+			
+});
+
+$("message").keypress(function(){
+	var input = {typing_from:"7385697913", typing_to:sessionStorage.getItem("username"), typ_stat:"yes"};
+			console.log(input);
+			socket.emit('typing_status',input);
+});
+
+$('#call_Id').click(function(e){
+//alert('Hello');
+
+//[arr.to_call,arr.from_call,arr.call_type,arr.room]
+
+document.getElementById('call_room').value;
+var input = {to_call:"7385697913", from_call:"9175129361", call_type:document.getElementById('call_type').value,room:document.getElementById('call_room').value};
+			console.log(input);
+			socket.emit('video_audio_call',input);
+});
+$('#reject_call_Id').click(function(e){
+
+/* var input = {mobile_no:"9175129361"};
+			console.log(input);
+			socket.emit('check_ifavailable',input);	*/
+
+
+var input = {reject_from:"9175129361", reject_to:"7385697913",reject_type:document.getElementById('call_type').value};
+			console.log(input);
+			socket.emit('reject_call',input);				
+});
+
+$('#add_contacts').click(function(e){
+
+
+var input = ['9175129361','123456789','214536987','845796123','789541263','326541789','857496123'];
+			console.log(input);
+			socket.emit('get_allcontact',input);
+});
+
+
+
+$('#get_group_data_btn').click(function(e){
+var input = {group_id:"32"};
+			console.log(input);
+			socket.emit('get_group_data',input);
+});
+
+console.log(sessionStorage.getItem("username"));
+if(sessionStorage.getItem("username")==null)
+{
+	console.log('you are in ');
+	document.getElementById('showhide').style.display="none";	
+	document.getElementById('show_hide1').style.display="block";
+}
+else{
+	document.getElementById('showhide').style.display="block";	
+	document.getElementById('show_hide1').style.display="none";
+}
+
+		var socket = io.connect();
+		
+		var $messageForm = $('#send-message');
+		var $messageBox = $('#message');
+		var $chat = $('#chat');
+		var $data_type = $('#data_type');
+		var $file_name = $('#file_name');
+		var $buttonId = $('#buttonId');
+		var $my_id = $('#my_id');
+		
+		$messageForm.submit(function(e){
+			/*e.preventDefault();
+		// 	var arr = new Array($messageBox.val());
+			socket.emit('send_message',$messageBox.val());
+			$messageBox.val('');*/
+			//var input = {from:"+91 91-75-066142", to:"7385697913", message:$messageBox.val(),date_time:"2015-10-02 17:19:27 IST"};
+			//var input = {from:sessionStorage.getItem("username"), chat_with:"7385697913", message:$messageBox.val(),date_time:"2015-10-02 17:19:27 IST",data_type:$data_type.val(),file_name:$file_name.val(),my_id:$my_id.val(),vc_id:"6574011"};
+			
+			var input = {group_name:"no group",my_id:$my_id.val(),date_time:"2015-12-30 13:03:49 IST",cw_id:"4",cw_type:"individual",data_type:$data_type.val(),"recived_status":false,message:$messageBox.val(),from:sessionStorage.getItem("username"),file_name:$file_name.val(),chat_with:"7385697913","file_downloaded":true,my_status:'Demo Status'}
+
+			
+			console.log(input);
+			socket.emit('send_message',input);
+			//socket.emit('profile_update',input);
+			
+			$chat.append("Me : "+$messageBox.val()+"<br/>");
+			$messageBox.val('');
+			$data_type.val('');
+			$file_name.val('');
+			
+			 return false;	
+			});
+		socket.on('new_message', function(data){
+		//	alert('Hello Something is received'+data);
+			$chat.append(data+"<br/>");
+			});
+			
+			socket.on('receive', function(data){
+			//alert('Hello Something is received'+data);
+			//$chat.append(data+"<br/>");
+			//console.log(data);
+			if(data.flag=="receive_message")
+			{
+			
+			console.log("Message Received : - ");
+				/*"Time : "+data.date_time+",*/
+				if(data.data_type=='image')
+				{
+				$chat.append(" From : "+data.chat_with+" : : <img src='"+data.message+"' width='100px'><br/>");	
+				}
+				else{
+					$chat.append(" From : "+data.chat_with+" : : "+data.message+"<br/>");	
+				}
+				var input = {my_id:"2",chat_with_id:"4"};
+				socket.emit('seen_message_socket',input);
+				
+			}
+			if(data.flag=="delivered_report")
+			{
+				$chat.append(" Status : Delivered Till this time : ");	
+			}
+			if(data.flag=="status_reply")
+			{
+				document.getElementById('status_here').innerHTML = data.status;
+			}
+			console.log(data);
+			//alert(data);
+			});
+			
+socket.on('connect',function(){ 
+	var input = {phone_no:sessionStorage.getItem("username"), vc_id:"6574011",timezone:"Asia/Kolkata" };
+   	socket.emit('set_socket_id', input);
+
+});
+			
+			$buttonId.click(function(){
+		var input = {countrycode:"+91", mobilenumber:"7385697913", code:"12312",token:"gh dh rgffgjfgj fghjfxgjuyfj fgh"};
+	alert('it is cliecked'+input);
+				socket.emit('code_verification_2',input);
+				});
+				
+				socket.on('receive', function(data){
+					//console.log(data);
+			//alert('Hello Something is received'+data);
+			//$chat.append(data+"<br/>");
+			//$chat.append(data+"<br/>");
+			});
+});
+
+
+function call_function()
+{
+	var value = document.getElementById('uphone').value;
+	sessionStorage.setItem("username",value);	
+	document.getElementById('showhide').style.display="block";	
+	document.getElementById('show_hide1').style.display="none";
+}
+function logout()
+{
+	sessionStorage.setItem("username", "");
+	document.getElementById('showhide').style.display="none";	
+	document.getElementById('show_hide1').style.display="block";
+}
+
+
+function function_new()
+{
+	//alert('infunction');
+var dict = []; // create an empty array
+
+dict.push({
+    "9175129361" :  "sdfahjfsdf"
+    //value: "sdfahjfsdf"
+});
+console.log(dict);
+
+var s = JSON.stringify(dict);
+	var arr = JSON.parse(s);
+	//arr.9175129361;
+//console.log(dict.9175129361);
+//alert(dict.key);
+// repeat this last part as needed to add more key/value pairs	
+}
+
+</script>
+
+
